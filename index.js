@@ -17,16 +17,48 @@ async function run () {
     try{
         client.connect();
         const todoCollection = client.db("todosCollection").collection("todos");
+        
 
+        //All GET API
         app.get('/todos/:date', async (req, res)=> {
           const date = req.params.date;
             const query = {date: date}
             const result = await todoCollection.find(query).toArray();
             res.send(result)
         })
+
+        app.get('/completed', async (req, res) => {
+          const query = {isCompleted : true}
+          const result = await todoCollection.find(query).toArray()
+          res.send(result)
+        })
+
+        //All POST API
         app.post('/todo', async (req, res) => {
             const item = req.body;
             const result = await todoCollection.insertOne(item)
+            res.send(result)
+        })
+
+        //ALl PUT API
+        app.put('/complete/:id', async (req, res)=> {
+          const id = req.params.id;
+          const options = { upsert: true };
+          const filter = {_id: ObjectId(id)}
+          const updateDoc = {
+            $set: {
+              isCompleted: true
+            }
+          }
+          const result = await todoCollection.updateOne(filter, updateDoc, options)
+          res.send(result)
+        })
+
+        //All Delete API
+        app.delete('/delete/:id', async (req, res)=> {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id)}
+            const result = await todoCollection.deleteOne(filter)
             res.send(result)
         })
     }
