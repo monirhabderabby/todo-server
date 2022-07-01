@@ -22,7 +22,7 @@ async function run () {
         //All GET API
         app.get('/todos/:date', async (req, res)=> {
           const date = req.params.date;
-            const query = {date: date}
+            const query = {date: date, isCompleted:false}
             const result = await todoCollection.find(query).toArray();
             res.send(result)
         })
@@ -48,6 +48,20 @@ async function run () {
           const updateDoc = {
             $set: {
               isCompleted: true
+            }
+          }
+          const result = await todoCollection.updateOne(filter, updateDoc, options)
+          res.send(result)
+        })
+
+        app.put('/todoUpdate/:id', async (req, res)=> {
+          const id = req.params.id;
+          const todo = req.body
+          const options = { upsert: true };
+          const filter = {_id: ObjectId(id)}
+          const updateDoc = {
+            $set: {
+              todo: todo?.todo
             }
           }
           const result = await todoCollection.updateOne(filter, updateDoc, options)
